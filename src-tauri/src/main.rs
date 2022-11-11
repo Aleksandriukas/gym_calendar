@@ -13,7 +13,7 @@ fn greet(name: &str) -> String {
 }
 
 
-fn createDirectory(){
+fn create_directory(){
     fs::create_dir(MAIN_DIRECTORY_NAME);
 }
 
@@ -26,7 +26,7 @@ static MAIN_DIRECTORY_NAME: &str = "week_plans";
 fn main() {
     
     if(!path_exists(MAIN_DIRECTORY_NAME)){
-        createDirectory();
+        create_directory();
     }
   
     tauri::Builder::default()
