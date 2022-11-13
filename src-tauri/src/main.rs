@@ -3,7 +3,7 @@
     windows_subsystem = "macos"
 )]
 
-use std::{fs};
+use std::{fs, io::Write};
 
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -13,22 +13,33 @@ fn greet(name: &str) -> String {
 }
 
 
+
+fn createFile(name:&str)->std::io::Result<()> {
+    let mut file = fs::File::create("fdawdoo.json")?;
+    file.write_all(b"Hello, world!")?;
+    Ok(())
+}
+
+
+
 fn create_directory(){
     fs::create_dir(MAIN_DIRECTORY_NAME);
 }
 
 pub fn path_exists(path: &str) -> bool {
     fs::metadata(path).is_ok()
+
 }
-
-
 static MAIN_DIRECTORY_NAME: &str = "week_plans";
+
+
+
 fn main() {
     
     if(!path_exists(MAIN_DIRECTORY_NAME)){
         create_directory();
     }
-  
+
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![greet])
         .run(tauri::generate_context!())

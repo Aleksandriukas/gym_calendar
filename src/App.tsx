@@ -1,23 +1,35 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { Calendar } from "./components/Calendar";
+import {
+  BaseDirectory,
+  createDir,
+  writeFile,
+  readDir,
+} from "@tauri-apps/api/fs";
+import { DocumentsContext, FileObjectType } from "./DocumentsContext";
+import { SelectWeek } from "./components/SelectWeek";
+
+export const DIRECTORY_NAME = "Trainee_week_plans";
+
+const createDirectory = async () => {
+  await createDir(DIRECTORY_NAME, { dir: BaseDirectory.Desktop }); // Created there to debugging
+};
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-
-  async function test() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    await invoke("test");
-  }
+  const [documents, setDocuments] = useState<FileObjectType[]>();
+  useEffect(() => {
+    createDirectory();
+  });
 
   return (
-    <div className="container">
-      <button onClick={test}>Generate file</button>
-      <Calendar />
-    </div>
+    <DocumentsContext.Provider
+      value={{ documents: documents, setDocuments: setDocuments }}
+    >
+      <div className="container">
+        <SelectWeek />
+      </div>
+    </DocumentsContext.Provider>
   );
 }
 
