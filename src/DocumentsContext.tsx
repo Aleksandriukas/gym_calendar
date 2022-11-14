@@ -6,9 +6,9 @@ export type FileObjectType = {
 };
 
 export type DocumentsContextType = {
-  documents: FileObjectType[] | undefined;
+  documents: FileObjectType | undefined;
   setDocuments: React.Dispatch<
-    React.SetStateAction<FileObjectType[] | undefined>
+    React.SetStateAction<FileObjectType | undefined>
   >;
 };
 

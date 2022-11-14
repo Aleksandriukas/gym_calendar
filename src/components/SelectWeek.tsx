@@ -26,15 +26,17 @@ export type PlanType = {
 const createInitialValues = (weekIndex: number) => {
   const date = new Date().setFullYear(2022, 11, weekIndex * 1);
 
-  const initialValues: PlanType = {
-    date: date.toString(),
-    time: "10:00",
-    client: {
-      name: "unknown",
-      surname: "unknown",
+  const initialValues: PlanType[] = [
+    {
+      date: date.toString(),
+      time: "10:00",
+      client: {
+        name: "unknown",
+        surname: "unknown",
+      },
+      exercises: null,
     },
-    exercises: null,
-  };
+  ];
   return initialValues;
 };
 
@@ -64,7 +66,11 @@ export const createFile = async () => {
   );
 };
 
-export const SelectWeek = () => {
+export type SelectWeekProps = {
+  setFile: (value: FileEntry) => void;
+};
+
+export const SelectWeek = ({ setFile }: SelectWeekProps) => {
   const [filesList, setFilesList] = useState<FileEntry[]>();
 
   const [update, setUpdate] = useState(false);
@@ -75,10 +81,9 @@ export const SelectWeek = () => {
   const findPlans = useCallback(async () => {
     const results = await readDir(DIRECTORY_NAME, {
       dir: BaseDirectory.Desktop,
-    });
+    }).then((value) => value.filter((val) => val.name?.startsWith("plan")));
     results.filter((value) => {
       if (value.name?.startsWith("plan")) {
-        console.log(value.path);
         return true;
       } else {
         return false;
@@ -89,8 +94,7 @@ export const SelectWeek = () => {
 
   useEffect(() => {
     findPlans();
-    setFilesList(filesList?.filter((value) => value.name?.startsWith("plan")));
-  }, [update, filesList]);
+  }, [update]);
 
   return (
     <div className="SelectWeek-Container">
@@ -103,7 +107,6 @@ export const SelectWeek = () => {
       >
         Create new week
       </button>
-      <div className="line" />
 
       {filesList?.length === 0 ? (
         <h1>Welcome, please create your first week plan!</h1>
@@ -112,7 +115,16 @@ export const SelectWeek = () => {
       )}
 
       {filesList?.map((value, index) => {
-        return <button>{value.name}</button>;
+        return (
+          <button
+            onClick={() => {
+              setFile(value);
+            }}
+            key={index}
+          >
+            {value.name}
+          </button>
+        );
       })}
     </div>
   );
