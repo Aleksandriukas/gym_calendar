@@ -7,21 +7,22 @@ export type ChangePlanProps = {
 };
 
 export const ChangePlan = ({ value, onNext }: ChangePlanProps) => {
-  const [update, setUpdate] = useState(false);
+  const [val, setVal] = useState(value.client.name);
 
-  const forceUpdate = () => {
-    setUpdate((old) => !old);
-  };
-
-  useEffect(() => {
-    console.log(value);
-  }, [update]);
   return (
     <div>
       <h1>{value.client.name}</h1>
+      <input
+        value={val}
+        onChange={(event) => {
+          value.client.name = event.target.value;
+          setVal(event.target.value);
+        }}
+      ></input>
       <button
-        onClick={() => {
-          forceUpdate();
+        disabled={onNext === undefined}
+        onClick={(e) => {
+          console.log("click");
           onNext?.();
         }}
       >
