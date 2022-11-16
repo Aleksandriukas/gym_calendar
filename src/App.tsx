@@ -26,11 +26,6 @@ const createDirectory = async () => {
 function App() {
   const [file, setFile] = useState<FileEntry>();
   const [editMenu, setEditMenu] = useState(false);
-  const [update, setUpdate] = useState(false);
-
-  const forceUpdate = useCallback(() => {
-    setUpdate((old) => !old);
-  }, []);
 
   const planlistRef = useRef(new LinkList<PlanType>());
   const [iter, setIter] = useState(planlistRef.current.begin());
