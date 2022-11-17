@@ -1,17 +1,12 @@
-import React, { createContext } from "react";
-
-export type FileObjectType = {
-  name: string;
-  path: string;
-};
+import { createSafeContext, useSafeContext } from "@sirse-dev/safe-context";
+import { FileEntry } from "@tauri-apps/api/fs";
+import React from "react";
 
 export type DocumentsContextType = {
-  documents: FileObjectType | undefined;
-  setDocuments: React.Dispatch<
-    React.SetStateAction<FileObjectType | undefined>
-  >;
+  path: FileEntry;
+  setPath: React.Dispatch<React.SetStateAction<FileEntry>>;
 };
 
-export const DocumentsContext = createContext<DocumentsContextType | null>(
-  null
-);
+export const DocumentsContext = createSafeContext<DocumentsContextType>();
+
+export const useDocumentsContext = () => useSafeContext(DocumentsContext);

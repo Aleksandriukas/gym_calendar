@@ -1,131 +1,114 @@
+import {
+    writeFile,
+    BaseDirectory,
+    exists,
+    readDir,
+    FileEntry,
+} from "@tauri-apps/api/fs";
 import React, { useCallback, useEffect, useState } from "react";
 import "./SelectWeek.css";
-import {
-  writeFile,
-  BaseDirectory,
-  exists,
-  readDir,
-  FileEntry,
-} from "@tauri-apps/api/fs";
 import { DIRECTORY_NAME } from "../App";
-import { NewFileModal } from "./NewFileModal";
 
 export type PlanType = {
-  date: string;
-  time: string;
-  client: {
-    name: string;
-    surname: string;
-  };
-  exercises: {
-    type: string;
-    quantity: number;
-  } | null;
+    date: Date;
+    client: {
+        name: string;
+        surname: string;
+    };
+    exercises:
+        | {
+              type: string;
+              quantity: number;
+          }
+        | undefined;
 };
 
 const createInitialValues = (weekIndex: number) => {
-  const date = new Date().setFullYear(2022, 11, weekIndex * 1);
+    const date = new Date(2022, 11, weekIndex * 1);
 
-  const initialValues: PlanType[] = [
-    {
-      date: date.toString(),
-      time: "10:00",
-      client: {
-        name: "unknown",
-        surname: "unknown",
-      },
-      exercises: null,
-    },
-  ];
-  return initialValues;
+    const initialValues: PlanType[] = [
+        {
+            date: date,
+            client: {
+                name: "unknown",
+                surname: "unknown",
+            },
+            exercises: undefined,
+        },
+    ];
+    return initialValues;
 };
 
-export const scanDir = async () => {
-  let index = 1;
+export const scanDirectory = async () => {
+    let index = 1;
 
-  while (1) {
-    const result = await exists(`${DIRECTORY_NAME}/plan${index}.json`, {
-      dir: BaseDirectory.Desktop,
-    });
-    if (!result) {
-      return index;
+    // eslint-disable-next-line no-constant-condition
+    while (1) {
+        const result = (await exists(`${DIRECTORY_NAME}/plan${index}.json`, {
+            dir: BaseDirectory.Desktop,
+        })) as unknown as boolean;
+        if (!result) {
+            return index;
+        }
+        index++;
     }
-    index++;
-  }
-};
-
-export const createFile = async () => {
-  const fileIndex = await scanDir();
-  const initialValues = await createInitialValues(fileIndex!);
-  await writeFile(
-    `${DIRECTORY_NAME}/plan${fileIndex}.json`,
-    JSON.stringify(initialValues),
-    {
-      dir: BaseDirectory.Desktop,
-    }
-  );
 };
 
 export type SelectWeekProps = {
-  setFile: (value: FileEntry) => void;
+    setFile: (value: FileEntry) => void;
 };
 
 export const SelectWeek = ({ setFile }: SelectWeekProps) => {
-  const [filesList, setFilesList] = useState<FileEntry[]>();
+    const [filesList, setFilesList] = useState<FileEntry[] | undefined>();
 
-  const [update, setUpdate] = useState(false);
-  const forceUpdate = useCallback(() => {
-    setUpdate((old) => !old);
-  }, []);
+    const findPlans = useCallback(async () => {
+        const results = await readDir(DIRECTORY_NAME, {
+            dir: BaseDirectory.Desktop,
+            // eslint-disable-next-line unicorn/prevent-abbreviations
+        }).then((value) => value.filter((val) => val.name?.startsWith("plan")));
+        setFilesList(results);
+    }, []);
 
-  const findPlans = useCallback(async () => {
-    const results = await readDir(DIRECTORY_NAME, {
-      dir: BaseDirectory.Desktop,
-    }).then((value) => value.filter((val) => val.name?.startsWith("plan")));
-    results.filter((value) => {
-      if (value.name?.startsWith("plan")) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    setFilesList(results);
-  }, []);
-
-  useEffect(() => {
-    findPlans();
-  }, [update]);
-
-  return (
-    <div className="SelectWeek-Container">
-      <h1>Select week</h1>
-      <button
-        onClick={() => {
-          createFile();
-          forceUpdate();
-        }}
-      >
-        Create new week
-      </button>
-
-      {filesList?.length === 0 ? (
-        <h1>Welcome, please create your first week plan!</h1>
-      ) : (
-        <h1>Welcome, select your plan!</h1>
-      )}
-
-      {filesList?.map((value, index) => {
-        return (
-          <button
-            onClick={() => {
-              setFile(value);
-            }}
-            key={index}
-          >
-            {value.name}
-          </button>
+    const createFile = useCallback(async () => {
+        const fileIndex = await scanDirectory();
+        const initialValues = createInitialValues(fileIndex!);
+        await writeFile(
+            `${DIRECTORY_NAME}/plan${fileIndex}.json`,
+            JSON.stringify(initialValues),
+            {
+                dir: BaseDirectory.Desktop,
+            }
         );
-      })}
-    </div>
-  );
+        await findPlans();
+    }, [findPlans]);
+
+    useEffect(() => {
+        findPlans();
+    }, [findPlans]);
+
+    return (
+        <div className="SelectWeek-Container">
+            <h1>Select week</h1>
+            <button onClick={createFile}>Create new week</button>
+
+            {filesList?.length === 0 ? (
+                <h1>Welcome, please create your first week plan!</h1>
+            ) : (
+                <h1>Welcome, select your plan!</h1>
+            )}
+
+            {filesList?.map((value, index) => {
+                return (
+                    <button
+                        onClick={() => {
+                            setFile(value);
+                        }}
+                        key={index}
+                    >
+                        {value.name}
+                    </button>
+                );
+            })}
+        </div>
+    );
 };

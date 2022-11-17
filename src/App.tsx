@@ -1,77 +1,107 @@
+import {
+    BaseDirectory,
+    createDir,
+    exists,
+    FileEntry,
+    readTextFile,
+    writeFile,
+} from "@tauri-apps/api/fs";
+import { LinkList } from "js-sdsl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
-import { LinkList, LinkListIterator } from "js-sdsl";
-import {
-  BaseDirectory,
-  createDir,
-  exists,
-  FileEntry,
-  readTextFile,
-} from "@tauri-apps/api/fs";
-import { DocumentsContext, FileObjectType } from "./DocumentsContext";
-import { PlanType, SelectWeek } from "./components/SelectWeek";
 import { ChangePlan } from "./components/ChangePlan";
+import { PlanType, SelectWeek } from "./components/SelectWeek";
+import { DocumentsContext } from "./DocumentsContext";
 
 export const DIRECTORY_NAME = "Trainee_week_plans";
 
 const createDirectory = async () => {
-  const existDir = (await exists(DIRECTORY_NAME, {
-    dir: BaseDirectory.Desktop,
-  })) as unknown as boolean;
-  if (!existDir) {
-    await createDir(DIRECTORY_NAME, { dir: BaseDirectory.Desktop }); // Created there to debugging
-  }
+    const existDirectory = (await exists(DIRECTORY_NAME, {
+        dir: BaseDirectory.Desktop,
+    })) as unknown as boolean;
+    if (!existDirectory) {
+        await createDir(DIRECTORY_NAME, { dir: BaseDirectory.Desktop }); // Created there to debugging
+    }
 };
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function App() {
-  const [file, setFile] = useState<FileEntry>();
-  const [editMenu, setEditMenu] = useState(false);
-
-  const planlistRef = useRef(new LinkList<PlanType>());
-  const [iter, setIter] = useState(planlistRef.current.begin());
-
-  const next = useCallback(() => {
-    console.log("asdf");
-    setIter(iter.next().copy());
-  }, [iter]);
-
-  const setPath = useCallback(async (value: FileEntry) => {
-    const readFile = await readTextFile(`${DIRECTORY_NAME}/${value.name}`, {
-      dir: BaseDirectory.Desktop,
+    const [file, setFile] = useState<FileEntry>();
+    const [editMenu, setEditMenu] = useState(false);
+    const [path, setPath] = useState<FileEntry>({
+        name: "",
+        path: "",
     });
-    const parsedFile: PlanType[] = JSON.parse(readFile);
 
-    for (const element of parsedFile) {
-      planlistRef.current.pushBack(element);
-    }
+    const planListReference = useRef(new LinkList<PlanType>());
+    const [iter, setIter] = useState(planListReference.current.begin());
+    const next = useCallback(() => {
+        setIter(iter.next().copy());
+    }, [iter]);
 
-    setIter(planlistRef.current.begin());
-    setFile(value);
-    setEditMenu(true);
-  }, []);
+    const saveToFile = useCallback(async () => {
+        let iter = planListReference.current.begin();
 
-  useEffect(() => {
-    createDirectory();
-  }, [file]);
+        const array: PlanType[] = [];
 
-  return (
-    <div className="container">
-      {editMenu ? (
-        <ChangePlan
-          value={iter.pointer}
-          onNext={
-            iter.equals(planlistRef.current.end().pre()) ? undefined : next
-          }
-        />
-      ) : (
-        <SelectWeek
-          setFile={(value) => {
-            setPath(value);
-          }}
-        />
-      )}
-    </div>
-  );
+        // eslint-disable-next-line unicorn/prevent-abbreviations
+        for (let i = 0; i < planListReference.current.size(); i++) {
+            array.push(iter.pointer);
+            iter = iter.next().copy();
+        }
+        await writeFile(
+            `${DIRECTORY_NAME}/${path.name}`,
+            JSON.stringify(array),
+            {
+                dir: BaseDirectory.Desktop,
+            }
+        );
+    }, [path]);
+
+    const setFilePath = useCallback(async (value: FileEntry) => {
+        setPath(value);
+
+        const readFile = await readTextFile(`${DIRECTORY_NAME}/${value.name}`, {
+            dir: BaseDirectory.Desktop,
+        });
+        const parsedFile: PlanType[] = JSON.parse(readFile);
+
+        for (const element of parsedFile) {
+            planListReference.current.pushBack(element);
+        }
+
+        setIter(planListReference.current.begin());
+        setFile(value);
+        setEditMenu(true);
+    }, []);
+
+    useEffect(() => {
+        createDirectory();
+    }, []);
+
+    return (
+        <DocumentsContext.Provider value={{ path, setPath }}>
+            <div className="container">
+                {editMenu ? (
+                    <ChangePlan
+                        value={iter.pointer}
+                        save={saveToFile}
+                        onNext={
+                            iter.equals(planListReference.current.end().pre())
+                                ? undefined
+                                : next
+                        }
+                    />
+                ) : (
+                    <SelectWeek
+                        setFile={(value) => {
+                            setFilePath(value);
+                        }}
+                    />
+                )}
+            </div>
+        </DocumentsContext.Provider>
+    );
 }
 
 export default App;

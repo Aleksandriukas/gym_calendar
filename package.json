@@ -10,14 +10,25 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@date-io/moment": "^2.16.1",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.10.14",
+    "@mui/styled-engine-sc": "^5.10.14",
+    "@mui/x-date-pickers": "^5.0.8",
+    "@sirse-dev/safe-context": "^0.3.0",
     "@tauri-apps/api": "^1.1.0",
+    "eslint-config-prettier": "^8.5.0",
     "js-sdsl": "^4.2.0-beta.1",
+    "moment": "^2.29.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-modal": "^3.16.1",
+    "styled-components": "^5.3.6",
     "yallist": "^4.0.0"
   },
   "devDependencies": {
+    "@sirse-dev/eslint-config": "^1.0.12",
     "@tauri-apps/cli": "^1.1.1",
     "@types/node": "^18.7.10",
     "@types/react": "^18.0.15",
@@ -25,6 +36,8 @@
     "@types/react-modal": "^3.13.1",
     "@types/yallist": "^4.0.1",
     "@vitejs/plugin-react": "^2.0.0",
+    "eslint": "^8.27.0",
+    "prettier": "^2.7.1",
     "typescript": "^4.6.4",
     "vite": "^3.0.2"
   }
