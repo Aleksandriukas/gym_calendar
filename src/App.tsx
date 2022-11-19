@@ -82,23 +82,27 @@ function App() {
     return (
         <DocumentsContext.Provider value={{ path, setPath }}>
             <div className="container">
-                {editMenu ? (
-                    <ChangePlan
-                        value={iter.pointer}
-                        save={saveToFile}
-                        onNext={
-                            iter.equals(planListReference.current.end().pre())
-                                ? undefined
-                                : next
-                        }
-                    />
-                ) : (
-                    <SelectWeek
-                        setFile={(value) => {
-                            setFilePath(value);
-                        }}
-                    />
-                )}
+                <div className="formBackground">
+                    {editMenu ? (
+                        <ChangePlan
+                            value={iter.pointer}
+                            save={saveToFile}
+                            onNext={
+                                iter.equals(
+                                    planListReference.current.end().pre()
+                                )
+                                    ? undefined
+                                    : next
+                            }
+                        />
+                    ) : (
+                        <SelectWeek
+                            setFile={(value) => {
+                                setFilePath(value);
+                            }}
+                        />
+                    )}
+                </div>
             </div>
         </DocumentsContext.Provider>
     );

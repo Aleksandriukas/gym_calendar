@@ -1,7 +1,21 @@
 .logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
+    filter: drop-shadow(0 0 2em #747bff);
 }
 
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafb);
+    filter: drop-shadow(0 0 2em #61dafb);
+}
+.container {
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+}
+
+.formBackground {
+    border-radius: 5px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    background-color: #d9d2e2e7;
+    margin-left: 12px;
+    margin-right: 12px;
 }

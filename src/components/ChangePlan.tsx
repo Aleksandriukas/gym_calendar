@@ -5,8 +5,9 @@ import {
     LocalizationProvider,
 } from "@mui/x-date-pickers";
 import React, { useState } from "react";
-import { Input } from "./Input";
 import { PlanType } from "./SelectWeek";
+import { StringField } from "./StringField";
+import "./ChangePlan.css";
 export type ChangePlanProps = {
     value: PlanType;
     onNext?: () => void;
@@ -15,10 +16,23 @@ export type ChangePlanProps = {
 
 export const ChangePlan = ({ value, onNext, save }: ChangePlanProps) => {
     const [currentDate, setCurrentDate] = useState(value.date);
+
     return (
-        <div>
-            <Input value={value.client.name} />
-            <Input value={value.client.surname} />
+        <div className="changePlanContainer">
+            <StringField
+                label="Name"
+                setRealValue={(newValue) => {
+                    value.client.name = newValue;
+                }}
+                value={value.client.name}
+            />
+            <StringField
+                label="Surname"
+                setRealValue={(newValue) => {
+                    value.client.surname = newValue;
+                }}
+                value={value.client.surname}
+            />
             <LocalizationProvider dateAdapter={dateAdapter}>
                 <MobileDateTimePicker
                     ampm={false}

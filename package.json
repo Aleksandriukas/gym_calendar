@@ -16,6 +16,7 @@
     "@mui/material": "^5.10.14",
     "@mui/styled-engine-sc": "^5.10.14",
     "@mui/x-date-pickers": "^5.0.8",
+    "@reactive-forms/core": "^0.8.16",
     "@sirse-dev/safe-context": "^0.3.0",
     "@tauri-apps/api": "^1.1.0",
     "eslint-config-prettier": "^8.5.0",
