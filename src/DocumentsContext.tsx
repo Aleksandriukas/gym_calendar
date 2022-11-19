@@ -3,8 +3,8 @@ import { FileEntry } from "@tauri-apps/api/fs";
 import React from "react";
 
 export type DocumentsContextType = {
-  path: FileEntry;
-  setPath: React.Dispatch<React.SetStateAction<FileEntry>>;
+    path: FileEntry;
+    setPath: React.Dispatch<React.SetStateAction<FileEntry>>;
 };
 
 export const DocumentsContext = createSafeContext<DocumentsContextType>();

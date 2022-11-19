@@ -10,7 +10,7 @@ export const StringField = ({ value, setRealValue, ...other }: InputProps) => {
     const [currentValue, setCurrentValue] = useState(value);
     return (
         <TextField
-            variant="standard"
+            variant="outlined"
             value={currentValue}
             onChange={(event) => {
                 setRealValue(event.target.value);

@@ -10,7 +10,7 @@ import { LinkList } from "js-sdsl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import { ChangePlan } from "./components/ChangePlan";
-import { PlanType, SelectWeek } from "./components/SelectWeek";
+import { Plan, SelectWeek } from "./components/SelectWeek";
 import { DocumentsContext } from "./DocumentsContext";
 
 export const DIRECTORY_NAME = "Trainee_week_plans";
@@ -24,25 +24,38 @@ const createDirectory = async () => {
     }
 };
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-function App() {
+const App = () => {
     const [file, setFile] = useState<FileEntry>();
     const [editMenu, setEditMenu] = useState(false);
+    const planListReference = useRef(new LinkList<Plan>());
+
     const [path, setPath] = useState<FileEntry>({
         name: "",
         path: "",
     });
 
-    const planListReference = useRef(new LinkList<PlanType>());
+    const backToMenu = useCallback(() => {
+        setEditMenu((old) => !old);
+        planListReference.current.clear();
+    }, []);
+
     const [iter, setIter] = useState(planListReference.current.begin());
     const next = useCallback(() => {
         setIter(iter.next().copy());
     }, [iter]);
 
+    const previous = useCallback(() => {
+        setIter(iter.pre().copy());
+    }, [iter]);
+
+    const createNew = useCallback((value: Plan) => {
+        planListReference.current.pushBack(value);
+    }, []);
+
     const saveToFile = useCallback(async () => {
         let iter = planListReference.current.begin();
 
-        const array: PlanType[] = [];
+        const array: Plan[] = [];
 
         // eslint-disable-next-line unicorn/prevent-abbreviations
         for (let i = 0; i < planListReference.current.size(); i++) {
@@ -64,7 +77,7 @@ function App() {
         const readFile = await readTextFile(`${DIRECTORY_NAME}/${value.name}`, {
             dir: BaseDirectory.Desktop,
         });
-        const parsedFile: PlanType[] = JSON.parse(readFile);
+        const parsedFile: Plan[] = JSON.parse(readFile);
 
         for (const element of parsedFile) {
             planListReference.current.pushBack(element);
@@ -85,14 +98,21 @@ function App() {
                 <div className="formBackground">
                     {editMenu ? (
                         <ChangePlan
+                            createNew={createNew}
                             value={iter.pointer}
                             save={saveToFile}
+                            backToMenu={backToMenu}
                             onNext={
                                 iter.equals(
                                     planListReference.current.end().pre()
                                 )
                                     ? undefined
                                     : next
+                            }
+                            onPrev={
+                                iter.equals(planListReference.current.begin())
+                                    ? undefined
+                                    : previous
                             }
                         />
                     ) : (
@@ -106,6 +126,6 @@ function App() {
             </div>
         </DocumentsContext.Provider>
     );
-}
+};
 
 export default App;

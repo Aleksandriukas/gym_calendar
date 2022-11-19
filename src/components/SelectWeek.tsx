@@ -9,31 +9,31 @@ import React, { useCallback, useEffect, useState } from "react";
 import "./SelectWeek.css";
 import { DIRECTORY_NAME } from "../App";
 
-export type PlanType = {
+export type Exercise = {
+    type: string;
+    quantity: number;
+};
+
+export type Plan = {
     date: Date;
     client: {
         name: string;
         surname: string;
     };
-    exercises:
-        | {
-              type: string;
-              quantity: number;
-          }
-        | undefined;
+    exercises: Exercise[];
 };
 
 const createInitialValues = (weekIndex: number) => {
     const date = new Date(2022, 11, weekIndex * 1);
 
-    const initialValues: PlanType[] = [
+    const initialValues: Plan[] = [
         {
             date: date,
             client: {
                 name: "unknown",
                 surname: "unknown",
             },
-            exercises: undefined,
+            exercises: [],
         },
     ];
     return initialValues;

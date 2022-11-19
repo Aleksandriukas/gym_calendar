@@ -1,24 +1,47 @@
 import dateAdapter from "@date-io/moment";
-import { TextField } from "@mui/material";
+import { Dialog, DialogContent, TextField } from "@mui/material";
 import {
     MobileDateTimePicker,
     LocalizationProvider,
 } from "@mui/x-date-pickers";
-import React, { useState } from "react";
-import { PlanType } from "./SelectWeek";
+import React, { useCallback, useState } from "react";
+import { ExerciseField } from "./ExerciseField";
+import { Plan } from "./SelectWeek";
 import { StringField } from "./StringField";
 import "./ChangePlan.css";
+import { PlanField } from "./PlanField";
+
 export type ChangePlanProps = {
-    value: PlanType;
+    value: Plan;
     onNext?: () => void;
+    onPrev?: () => void;
     save: () => void;
+    backToMenu: () => void;
+    createNew: (value: Plan) => void;
 };
 
-export const ChangePlan = ({ value, onNext, save }: ChangePlanProps) => {
+export const ChangePlan = ({
+    value,
+    onNext,
+    save,
+    onPrev,
+    backToMenu,
+}: ChangePlanProps) => {
     const [currentDate, setCurrentDate] = useState(value.date);
+    const [openModal, setOpenModal] = useState(false);
+
+    const toggleSetOpenModal = useCallback(() => {
+        setOpenModal((old) => !old);
+    }, []);
 
     return (
         <div className="changePlanContainer">
+            <Dialog onClose={toggleSetOpenModal} open={openModal}>
+                <DialogContent>
+                    <PlanField />
+                </DialogContent>
+            </Dialog>
+            <button onClick={backToMenu}> Back to menu</button>
             <StringField
                 label="Name"
                 setRealValue={(newValue) => {
@@ -48,10 +71,19 @@ export const ChangePlan = ({ value, onNext, save }: ChangePlanProps) => {
                 />
             </LocalizationProvider>
 
-            <button disabled={onNext === undefined} onClick={onNext}>
-                next
-            </button>
-            <button onClick={save}>save</button>
+            <ExerciseField value={value.exercises} />
+            <div className="buttonContainer">
+                <button disabled={onPrev === undefined} onClick={onPrev}>
+                    Back
+                </button>
+                <div>
+                    <button onClick={toggleSetOpenModal}>new</button>
+                    <button onClick={save}>save</button>
+                </div>
+                <button disabled={onNext === undefined} onClick={onNext}>
+                    next
+                </button>
+            </div>
         </div>
     );
 };
