@@ -6,6 +6,7 @@ import {
     readTextFile,
     writeFile,
 } from "@tauri-apps/api/fs";
+import { appWindow } from "@tauri-apps/api/window";
 import { LinkList } from "js-sdsl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
@@ -134,6 +135,14 @@ const App = () => {
         setFile(value);
         setEditMenu(true);
     }, []);
+
+    const unlisten = useCallback(async () => {
+        await appWindow.onCloseRequested(async () => {
+            saveToFile();
+        });
+    }, [saveToFile]);
+
+    unlisten();
 
     useEffect(() => {
         createDirectory();

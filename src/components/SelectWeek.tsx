@@ -29,17 +29,10 @@ const createInitialValues = (weekIndex: number) => {
     const initialValues: Plan[] = [];
 
     for (let i = 0; i < 7; i++) {
-        const from = new Date(2022, 11, weekIndex * 7, 8, 0);
-        const to = new Date(2022, 11, weekIndex * 7, 10, 0);
-        from.setDate(weekIndex * 7 + i);
-        to.setDate(weekIndex * 7 + i);
-        for (let j = 0; j < 8; j += 2) {
-            from.setHours(8 + j);
-            to.setHours(10 + j);
-            console.log(to);
+        for (let j = 0; j <= 6; j += 2) {
             const nodePlan: Plan = {
-                from: from,
-                to: to,
+                from: new Date(2022, 11, weekIndex * 7 + i, 8 + j),
+                to: new Date(2022, 11, weekIndex * 7 + i, 10 + j),
                 client: {
                     name: "unknown",
                     surname: "unknown",
