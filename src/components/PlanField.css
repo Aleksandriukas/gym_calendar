@@ -1,0 +1,5 @@
+.PlanFieldContainer {
+    flex-direction: column;
+    display: flex;
+    gap: 12px;
+}

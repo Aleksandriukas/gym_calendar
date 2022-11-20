@@ -98,6 +98,7 @@ export const SelectWeek = ({ setFile }: SelectWeekProps) => {
             )}
 
             {filesList?.map((value, index) => {
+                const match = value?.name?.replace(/\D/g, "");
                 return (
                     <button
                         onClick={() => {
@@ -105,7 +106,7 @@ export const SelectWeek = ({ setFile }: SelectWeekProps) => {
                         }}
                         key={index}
                     >
-                        {value.name}
+                        {`Week ${match}`}
                     </button>
                 );
             })}

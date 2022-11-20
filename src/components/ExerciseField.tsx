@@ -4,14 +4,30 @@ import { Exercise } from "./SelectWeek";
 
 export type ExerciseFieldProps = {
     value: Exercise[];
+    disabled?: boolean;
 };
 
-export const ExerciseField = ({ value }: ExerciseFieldProps) => {
+export const ExerciseField = ({ value, disabled }: ExerciseFieldProps) => {
     const [currentValue, setCurrentValue] = useState(value);
     const [newExercise, setNewExercise] = useState<Exercise>({
         quantity: 0,
         type: "",
     });
+    if (disabled) {
+        return (
+            <ul>
+                {value.map((item, index) => {
+                    return (
+                        <li key={index}>
+                            <p>
+                                {item.type}: {item.quantity}
+                            </p>
+                        </li>
+                    );
+                })}
+            </ul>
+        );
+    }
 
     return (
         <div>
@@ -19,40 +35,44 @@ export const ExerciseField = ({ value }: ExerciseFieldProps) => {
                 {currentValue.map((item, index) => {
                     return (
                         <li key={index}>
-                            {item.type} {item.quantity}
+                            <p>
+                                {item.type}: {item.quantity}
+                            </p>
                         </li>
                     );
                 })}
             </ul>
-            <TextField
-                label="Type"
-                value={newExercise.type}
-                onChange={(event) => {
-                    setNewExercise({
-                        quantity: newExercise.quantity,
-                        type: event.target.value,
-                    });
-                }}
-            />
-            <TextField
-                type="number"
-                label="Quantity"
-                value={newExercise.quantity}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                    setNewExercise({
-                        quantity: event.target.valueAsNumber,
-                        type: newExercise.type,
-                    });
-                }}
-            />
-            <button
-                onClick={() => {
-                    value.push(newExercise);
-                    setCurrentValue([...value]);
-                }}
-            >
-                Set
-            </button>
+            <div>
+                <TextField
+                    label="Type"
+                    value={newExercise.type}
+                    onChange={(event) => {
+                        setNewExercise({
+                            quantity: newExercise.quantity,
+                            type: event.target.value,
+                        });
+                    }}
+                />
+                <TextField
+                    type="number"
+                    label="Quantity"
+                    value={newExercise.quantity}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                        setNewExercise({
+                            quantity: event.target.valueAsNumber,
+                            type: newExercise.type,
+                        });
+                    }}
+                />
+                <button
+                    onClick={() => {
+                        value.push(newExercise);
+                        setCurrentValue([...value]);
+                    }}
+                >
+                    Set
+                </button>
+            </div>
         </div>
     );
 };

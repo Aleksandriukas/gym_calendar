@@ -2,12 +2,11 @@ import TextField, { BaseTextFieldProps } from "@mui/material/TextField";
 import React, { useState } from "react";
 
 export type InputProps = {
-    value: string;
     setRealValue: (newValue: string) => void;
 } & BaseTextFieldProps;
 
-export const StringField = ({ value, setRealValue, ...other }: InputProps) => {
-    const [currentValue, setCurrentValue] = useState(value);
+export const StringField = ({ setRealValue, ...other }: InputProps) => {
+    const [currentValue, setCurrentValue] = useState("");
     return (
         <TextField
             variant="outlined"

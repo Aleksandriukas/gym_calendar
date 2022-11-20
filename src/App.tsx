@@ -40,6 +40,7 @@ const App = () => {
     }, []);
 
     const [iter, setIter] = useState(planListReference.current.begin());
+
     const next = useCallback(() => {
         setIter(iter.next().copy());
     }, [iter]);
@@ -48,9 +49,52 @@ const App = () => {
         setIter(iter.pre().copy());
     }, [iter]);
 
-    const createNew = useCallback((value: Plan) => {
-        planListReference.current.pushBack(value);
-    }, []);
+    const createNew = useCallback(
+        (value: Plan, position: number) => {
+            planListReference.current.insert(position, value);
+            setIter(iter.copy());
+        },
+        [iter]
+    );
+
+    const deleteCurrent = useCallback(() => {
+        if (planListReference.current.size() === 1) {
+            iter.pointer = {
+                client: { name: "unknown", surname: "unknown" },
+                date: new Date(),
+                exercises: [],
+            } as Plan;
+            setIter(iter.copy());
+            return;
+        }
+        if (iter.equals(planListReference.current.end().pre())) {
+            setIter(iter.pre().copy());
+            planListReference.current.popBack();
+            return;
+        }
+
+        planListReference.current.eraseElementByIterator(iter);
+        setIter(iter.copy());
+    }, [iter]);
+
+    const deleteByPosition = useCallback(
+        (position: number) => {
+            if (planListReference.current.size() === 1) {
+                deleteCurrent();
+                return;
+            }
+            if (
+                iter.pointer ===
+                planListReference.current.getElementByPos(position)
+            ) {
+                deleteCurrent();
+                return;
+            }
+            planListReference.current.eraseElementByPos(position);
+            setIter(iter.copy());
+        },
+        [deleteCurrent, iter]
+    );
 
     const saveToFile = useCallback(async () => {
         let iter = planListReference.current.begin();
@@ -98,6 +142,9 @@ const App = () => {
                 <div className="formBackground">
                     {editMenu ? (
                         <ChangePlan
+                            deleteByPosition={deleteByPosition}
+                            deleteCurrent={deleteCurrent}
+                            maxPosition={planListReference.current.size()}
                             createNew={createNew}
                             value={iter.pointer}
                             save={saveToFile}

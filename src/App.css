@@ -21,3 +21,8 @@
     margin-left: 12px;
     margin-right: 12px;
 }
+
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
