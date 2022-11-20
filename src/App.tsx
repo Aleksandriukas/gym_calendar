@@ -59,11 +59,14 @@ const App = () => {
 
     const deleteCurrent = useCallback(() => {
         if (planListReference.current.size() === 1) {
-            iter.pointer = {
-                client: { name: "unknown", surname: "unknown" },
-                date: new Date(),
-                exercises: [],
-            } as Plan;
+            const temporaryFrom = iter.pointer.from;
+            temporaryFrom.setHours(8),
+                (iter.pointer = {
+                    client: { name: "unknown", surname: "unknown" },
+                    from: temporaryFrom,
+                    to: temporaryFrom,
+                    exercises: [],
+                } as Plan);
             setIter(iter.copy());
             return;
         }

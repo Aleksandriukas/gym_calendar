@@ -2,7 +2,8 @@ import dateAdapter from "@date-io/moment";
 import { TextField } from "@mui/material";
 import {
     LocalizationProvider,
-    MobileDateTimePicker,
+    MobileDatePicker,
+    MobileTimePicker,
 } from "@mui/x-date-pickers";
 import React, { useState } from "react";
 import { ExerciseField } from "./ExerciseField";
@@ -20,7 +21,8 @@ export const ChangePlanField = ({
     value,
     onClose,
 }: ChangePlanFieldProps) => {
-    const [currentDate, setCurrentDate] = useState(value.date);
+    const [currentFrom, setCurrentFrom] = useState(value.from);
+    const [currentTo, setCurrentTo] = useState(value.to);
 
     return (
         <div className="stringFieldContainer">
@@ -41,17 +43,44 @@ export const ChangePlanField = ({
                 }}
             />
             <LocalizationProvider dateAdapter={dateAdapter}>
-                <MobileDateTimePicker
+                <MobileDatePicker
+                    disabled={disabled}
+                    renderInput={(props) => (
+                        <TextField disabled={true} {...props} />
+                    )}
+                    label="DateTimePicker"
+                    value={disabled ? value.from : currentFrom}
+                    onChange={(newDate) => {
+                        value.from = newDate!;
+                        setCurrentFrom(newDate!);
+                        newDate?.setHours(value.to.getHours());
+                        setCurrentTo(newDate!);
+                    }}
+                />
+                <MobileTimePicker
                     ampm={false}
                     disabled={disabled}
                     renderInput={(props) => (
                         <TextField disabled={true} {...props} />
                     )}
                     label="DateTimePicker"
-                    value={disabled ? value.date : currentDate}
+                    value={disabled ? value.from : currentFrom}
                     onChange={(newDate) => {
-                        value.date = newDate!;
-                        setCurrentDate(newDate!);
+                        value.from = newDate!;
+                        setCurrentFrom(newDate!);
+                    }}
+                />
+                <MobileTimePicker
+                    ampm={false}
+                    disabled={disabled}
+                    renderInput={(props) => (
+                        <TextField disabled={true} {...props} />
+                    )}
+                    label="DateTimePicker"
+                    value={disabled ? value.to : currentTo}
+                    onChange={(newDate) => {
+                        value.to = newDate!;
+                        setCurrentTo(newDate!);
                     }}
                 />
                 <ExerciseField disabled={disabled} value={value.exercises} />
