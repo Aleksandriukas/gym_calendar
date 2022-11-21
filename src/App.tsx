@@ -29,7 +29,8 @@ const App = () => {
     const [file, setFile] = useState<FileEntry>();
     const [editMenu, setEditMenu] = useState(false);
     const planListReference = useRef(new LinkList<Plan>());
-
+    const [array, setArray] = useState<Plan[]>([]);
+    const [allPlan, setAllPlan] = useState<Plan[]>([]);
     const [path, setPath] = useState<FileEntry>({
         name: "",
         path: "",
@@ -41,6 +42,26 @@ const App = () => {
     }, []);
 
     const [iter, setIter] = useState(planListReference.current.begin());
+
+    const findByUser = (name: string, surname: string) => {
+        const foundArray: Plan[] = [];
+        let temporaryIter = planListReference.current.begin();
+
+        for (
+            let index = 0;
+            index < planListReference.current.size() - 1;
+            index++
+        ) {
+            if (
+                temporaryIter.pointer.client.name === name &&
+                temporaryIter.pointer.client.surname === surname
+            ) {
+                foundArray.push(temporaryIter.pointer);
+            }
+            temporaryIter = temporaryIter.next().copy();
+        }
+        setArray(foundArray);
+    };
 
     const next = useCallback(() => {
         setIter(iter.next().copy());
@@ -100,6 +121,19 @@ const App = () => {
         [deleteCurrent, iter]
     );
 
+    const findAllPlan = useCallback(() => {
+        let iter = planListReference.current.begin();
+
+        const array: Plan[] = [];
+
+        // eslint-disable-next-line unicorn/prevent-abbreviations
+        for (let i = 0; i < planListReference.current.size(); i++) {
+            array.push(iter.pointer);
+            iter = iter.next().copy();
+        }
+        setAllPlan(array);
+    }, []);
+
     const saveToFile = useCallback(async () => {
         let iter = planListReference.current.begin();
 
@@ -154,6 +188,10 @@ const App = () => {
                 <div className="formBackground">
                     {editMenu ? (
                         <ChangePlan
+                            allPlan={allPlan}
+                            findAll={findAllPlan}
+                            search={findByUser}
+                            foundArray={array}
                             deleteByPosition={deleteByPosition}
                             deleteCurrent={deleteCurrent}
                             maxPosition={planListReference.current.size()}
