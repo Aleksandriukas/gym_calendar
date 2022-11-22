@@ -8,6 +8,7 @@ import {
 } from "@tauri-apps/api/fs";
 import { appWindow } from "@tauri-apps/api/window";
 import { LinkList } from "js-sdsl";
+import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import { ChangePlan } from "./components/ChangePlan";
@@ -47,11 +48,7 @@ const App = () => {
         const foundArray: Plan[] = [];
         let temporaryIter = planListReference.current.begin();
 
-        for (
-            let index = 0;
-            index < planListReference.current.size() - 1;
-            index++
-        ) {
+        for (let index = 0; index < planListReference.current.size(); index++) {
             if (
                 temporaryIter.pointer.client.name === name &&
                 temporaryIter.pointer.client.surname === surname
@@ -71,24 +68,70 @@ const App = () => {
         setIter(iter.pre().copy());
     }, [iter]);
 
+    const isEqual = useCallback((date: Date, valueDate: Date): Boolean => {
+        if (date.getFullYear() !== valueDate.getFullYear()) {
+            return false;
+        }
+        if (date.getMonth() !== valueDate.getMonth()) {
+            return false;
+        }
+        if (date.getHours() !== valueDate.getHours()) {
+            return false;
+        }
+        if (date.getMinutes() !== valueDate.getMinutes()) {
+            return false;
+        }
+        return true;
+    }, []);
+
     const createNew = useCallback(
-        (value: Plan, position: number) => {
-            planListReference.current.insert(position, value);
+        (value: Plan): Boolean => {
+            let _iter = planListReference.current.begin();
+            // eslint-disable-next-line unicorn/prevent-abbreviations
+            for (let i = 0; i < planListReference.current.size(); i++) {
+                const time = moment(value.from).toDate();
+                const secondTime = moment(_iter.pointer.from).toDate();
+
+                if (
+                    isEqual(time, secondTime) &&
+                    (_iter.pointer.client.name === "unknown" ||
+                        _iter.pointer.client.name === "")
+                ) {
+                    _iter.pointer = value;
+                    setIter(iter.copy());
+                    return true;
+                }
+
+                if (
+                    isEqual(time, secondTime) &&
+                    !(
+                        _iter.pointer.client.name === "unknown" ||
+                        _iter.pointer.client.name === ""
+                    )
+                ) {
+                    return false;
+                }
+
+                _iter = _iter.next().copy();
+            }
+
+            planListReference.current.pushBack(value);
             setIter(iter.copy());
+            return true;
         },
-        [iter]
+        [isEqual, iter]
     );
 
     const deleteCurrent = useCallback(() => {
         if (planListReference.current.size() === 1) {
             const temporaryFrom = iter.pointer.from;
-            temporaryFrom.setHours(8),
-                (iter.pointer = {
-                    client: { name: "unknown", surname: "unknown" },
-                    from: temporaryFrom,
-                    to: temporaryFrom,
-                    exercises: [],
-                } as Plan);
+
+            iter.pointer = {
+                client: { name: "unknown", surname: "unknown" },
+                from: temporaryFrom,
+                to: temporaryFrom,
+                exercises: [],
+            } as Plan;
             setIter(iter.copy());
             return;
         }

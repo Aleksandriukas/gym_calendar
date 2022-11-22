@@ -15,7 +15,7 @@ export type ChangePlanProps = {
     save: () => void;
     maxPosition: number;
     backToMenu: () => void;
-    createNew: (value: Plan, position: number) => void;
+    createNew: (value: Plan) => Boolean;
     deleteCurrent: () => void;
     deleteByPosition: (position: number) => void;
     search: (name: string, surname: string) => void;
@@ -85,6 +85,20 @@ export const ChangePlan = ({
     const [foundName, setFoundName] = useState("");
     const [foundSurname, setFoundSurname] = useState("");
 
+    const [error, setError] = useState("");
+
+    const create = useCallback(
+        (value: Plan) => {
+            const result = createNew(value);
+            if (!result) {
+                setError("Plan with that time already exists");
+                return;
+            }
+            setError("");
+        },
+        [createNew]
+    );
+
     return (
         <div className="changePlanContainer">
             <Dialog open={openMenu} onClose={toggleOpenMenu}>
@@ -151,7 +165,7 @@ export const ChangePlan = ({
                     <PlanField
                         onClose={toggleSetOpenModal}
                         maxPosition={maxPosition}
-                        createNewPlan={createNew}
+                        createNewPlan={create}
                     />
                 </DialogContent>
             </Dialog>
@@ -175,6 +189,7 @@ export const ChangePlan = ({
                 </DialogContent>
             </Dialog>
             <div style={{ justifyContent: "space-between", display: "flex" }}>
+                {error && <p style={{ color: "#f00" }}>{error}</p>}
                 <button onClick={backToMenu}> Back to menu</button>
                 <div>
                     <button onClick={deleteCurrent}>Delete current</button>
